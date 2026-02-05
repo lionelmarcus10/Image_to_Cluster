@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k3d of Lionel | Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #a855f7;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light: #f8fafc;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Arrière-plan animé */
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.2;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob"></div>
+
+    <header>
+        <h1>k3d of Lionel</h1>
+        <p class="subtitle">Exploration 3D & Développement Créatif</p>
+        <a href="#about" class="btn">Découvrir le projet</a>
+    </header>
+
+    <div class="container" id="about">
+        <div class="card">
+            <h2>À propos de ce projet</h2>
+            <p style="margin: 20px 0;">
+                Bienvenue dans l'univers de <strong>k3d</strong>. Ce projet repousse les limites de l'interface utilisateur 
+                en combinant performance technique et esthétique minimaliste. 
+                Conçu avec passion par Lionel pour offrir une expérience immersive unique.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">
+                <div style="padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.05);">HTML5</div>
+                <div style="padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.05);">CSS3</div>
+                <div style="padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.05);">Modern UI</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 - Designed with ❤️ for k3d of Lionel
+    </footer>
+
+</body>
+</html>

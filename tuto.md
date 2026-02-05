@@ -1,0 +1,7 @@
+- En cours de construction
+- Automatiser le setup de packer ansible
+- Automatiser la création du cluster
+- Automatiser le déploiement du site 
+- Automatiser la mise à jour du site
+- Automatiser le cleanup de l'infra ( stop all services / deployment)
+- Destroy k3d nodes
