@@ -5,6 +5,87 @@
 
 -------
 
+## Automatic setup : 
+
+### Déploiement de l’infrastructure Web avec k3d, Packer et Ansible
+
+Ce guide explique comment installer les dépendances, déployer, mettre à jour et supprimer votre site web sur un cluster k3d local.
+
+---
+
+### 1. Installation des dépendances et création du cluster
+
+Pour installer **k3d**, **Packer**, **Ansible** et créer le cluster `lab` (si ce n’est pas déjà fait) :
+
+```bash
+make setup
+```
+
+> Cette commande est **idempotente**, elle n’installera rien si les outils ou le cluster existent déjà.
+
+---
+
+### 2. Déploiement initial du site
+
+Pour déployer le site web pour la première fois :
+
+```bash
+make deploy
+```
+
+- Reconstruit l’image Packer  
+- Importe l’image dans k3d  
+- Déploie le site dans Kubernetes  
+- Active le port-forward pour accéder au site sur [http://localhost:8080](http://localhost:8080)
+
+---
+
+### 3. Mise à jour du site
+
+Si vous modifiez le site (HTML, assets…) et que vous voulez mettre à jour le déploiement :
+
+```bash
+make update
+```
+
+- Reconstruit l’image Packer  
+- Importe l’image dans k3d  
+- Redéploie le site existant  
+- Redémarre le port-forward
+
+---
+
+### 4. Suppression de l’infrastructure
+
+Pour stopper les services, supprimer le déploiement et détruire le cluster k3d :
+
+```bash
+make destroy
+```
+
+- Arrête le port-forward  
+- Supprime le déploiement Kubernetes  
+- Supprime le cluster k3d `lab`
+
+---
+
+### 5. Accès au site
+
+Après un déploiement ou une mise à jour, le site est accessible en local sur :  
+
+```
+http://localhost:8080
+```
+
+---
+
+Toutes les commandes sont **centralisées via Make** et utilisent Ansible pour le déploiement et la destruction.
+
+
+
+---
+
+> For manual usage you could follow those two sections :
 
 ## Install dependencies :
 
@@ -16,7 +97,7 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 # Install k3d cluster
 k3d cluster create lab \
   --servers 1 \
-  --agents 2
+    --agents 2
 ```
 
 ### Packer

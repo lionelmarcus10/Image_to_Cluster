@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Stop port-forward
+      shell: pkill -f "kubectl port-forward.*8080:80" || true
+      failed_when: false
+      changed_when: false
+
+    - name: Delete deployment
+      shell: kubectl delete -f deployment.yml || true
+      args:
+        chdir: ..
+
+    - name: Delete k3d cluster if exists
+      shell: |
+        if k3d cluster list | grep -q '^lab\b'; then
+          k3d cluster delete lab
+        fi

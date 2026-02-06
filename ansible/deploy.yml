@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Initialize packer
+      shell: packer init template.pkr.hcl
+      args:
+        chdir: ..
+
+    - name: Build packer image
+      shell: packer build template.pkr.hcl
+      args:
+        chdir: ..
+
+    - name: Import image into k3d
+      shell: k3d image import k3d-lionel-site:latest -c lab
+
+    - name: Deploy web app
+      shell: kubectl apply -f deployment.yml
+      args:
+        chdir: ..
+
+    - name: Wait for deployment to be ready
+      shell: kubectl wait --for=condition=available deployment/lionel-site-deployment
+
+    - name: Kill previous port-forward if any
+      shell: pkill -f "kubectl port-forward.*8080:80" || true
+      failed_when: false
+      changed_when: false
+
+    - name: Forward port
+      shell: kubectl port-forward --pod-running-timeout=60s svc/lionel-service 8080:80 >/tmp/website.log 2>&1 &
