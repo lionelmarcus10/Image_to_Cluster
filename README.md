@@ -1,10 +1,3 @@
-- En cours de construction
-- Automatiser le cleanup de l'infra ( stop all services / deployment)
-- Destroy k3d nodes
-
-
--------
-
 ## Automatic setup : 
 
 ### Déploiement de l’infrastructure Web avec k3d, Packer et Ansible
