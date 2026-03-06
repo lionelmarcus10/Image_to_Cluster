@@ -1,92 +1,158 @@
-------------------------------------------------------------------------------------------------------
-ATELIER FROM IMAGE TO CLUSTER
-------------------------------------------------------------------------------------------------------
-L’idée en 30 secondes : Cet atelier consiste à **industrialiser le cycle de vie d’une application** simple en construisant une **image applicative Nginx** personnalisée avec **Packer**, puis en déployant automatiquement cette application sur un **cluster Kubernetes** léger (K3d) à l’aide d’**Ansible**, le tout dans un environnement reproductible via **GitHub Codespaces**.
-L’objectif est de comprendre comment des outils d’Infrastructure as Code permettent de passer d’un artefact applicatif maîtrisé à un déploiement cohérent et automatisé sur une plateforme d’exécution.
-  
--------------------------------------------------------------------------------------------------------
-Séquence 1 : Codespace de Github
--------------------------------------------------------------------------------------------------------
-Objectif : Création d'un Codespace Github  
-Difficulté : Très facile (~5 minutes)
--------------------------------------------------------------------------------------------------------
-**Faites un Fork de ce projet**. Si besion, voici une vidéo d'accompagnement pour vous aider dans les "Forks" : [Forker ce projet](https://youtu.be/p33-7XQ29zQ) 
-  
-Ensuite depuis l'onglet [CODE] de votre nouveau Repository, **ouvrez un Codespace Github**.
-  
----------------------------------------------------
-Séquence 2 : Création du cluster Kubernetes K3d
----------------------------------------------------
-Objectif : Créer votre cluster Kubernetes K3d  
-Difficulté : Simple (~5 minutes)
----------------------------------------------------
-Vous allez dans cette séquence mettre en place un cluster Kubernetes K3d contenant un master et 2 workers.  
-Dans le terminal du Codespace copier/coller les codes ci-dessous etape par étape :  
+- En cours de construction
+- Automatiser le cleanup de l'infra ( stop all services / deployment)
+- Destroy k3d nodes
 
-**Création du cluster K3d**  
+
+-------
+
+## Automatic setup : 
+
+### Déploiement de l’infrastructure Web avec k3d, Packer et Ansible
+
+Ce guide explique comment installer les dépendances, déployer, mettre à jour et supprimer votre site web sur un cluster k3d local.
+
+---
+
+### 1. Installation des dépendances et création du cluster
+
+Pour installer **k3d**, **Packer**, **Ansible** et créer le cluster `lab` (si ce n’est pas déjà fait) :
+
+```bash
+make setup
 ```
+
+> Cette commande est **idempotente**, elle n’installera rien si les outils ou le cluster existent déjà.
+
+---
+
+### 2. Déploiement initial du site
+
+Pour déployer le site web pour la première fois :
+
+```bash
+make deploy
+```
+
+- Reconstruit l’image Packer  
+- Importe l’image dans k3d  
+- Déploie le site dans Kubernetes  
+- Active le port-forward pour accéder au site sur [http://localhost:8080](http://localhost:8080)
+
+---
+
+### 3. Mise à jour du site
+
+Si vous modifiez le site (HTML, assets…) et que vous voulez mettre à jour le déploiement :
+
+```bash
+make update
+```
+
+- Reconstruit l’image Packer  
+- Importe l’image dans k3d  
+- Redéploie le site existant  
+- Redémarre le port-forward
+
+---
+
+### 4. Suppression de l’infrastructure
+
+Pour stopper les services, supprimer le déploiement et détruire le cluster k3d :
+
+```bash
+make destroy
+```
+
+- Arrête le port-forward  
+- Supprime le déploiement Kubernetes  
+- Supprime le cluster k3d `lab`
+
+---
+
+### 5. Accès au site
+
+Après un déploiement ou une mise à jour, le site est accessible en local sur :  
+
+```
+http://localhost:8080
+```
+
+---
+
+Toutes les commandes sont **centralisées via Make** et utilisent Ansible pour le déploiement et la destruction.
+
+
+
+---
+
+> For manual usage you could follow those two sections :
+
+## Install dependencies :
+
+### k3d
+
+```bash
+# Install k3d
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-```
-```
+# Install k3d cluster
 k3d cluster create lab \
   --servers 1 \
-  --agents 2
+    --agents 2
 ```
-**vérification du cluster**  
-```
-kubectl get nodes
-```
-**Déploiement d'une application (Docker Mario)**  
-```
-kubectl create deployment mario --image=sevenajay/mario
-kubectl expose deployment mario --type=NodePort --port=80
-kubectl get svc
-```
-**Forward du port 80**  
-```
-kubectl port-forward svc/mario 8080:80 >/tmp/mario.log 2>&1 &
-```
-**Réccupération de l'URL de l'application Mario** 
-Votre application Mario est déployée sur le cluster K3d. Pour obtenir votre URL cliquez sur l'onglet **[PORTS]** dans votre Codespace et rendez public votre port **8080** (Visibilité du port).
-Ouvrez l'URL dans votre navigateur et jouer !
 
----------------------------------------------------
-Séquence 3 : Exercice
----------------------------------------------------
-Objectif : Customisez un image Docker avec Packer et déploiement sur K3d via Ansible
-Difficulté : Moyen/Difficile (~2h)
----------------------------------------------------  
-Votre mission (si vous l'acceptez) : Créez une **image applicative customisée à l'aide de Packer** (Image de base Nginx embarquant le fichier index.html présent à la racine de ce Repository), puis déployer cette image customisée sur votre **cluster K3d** via **Ansible**, le tout toujours dans **GitHub Codespace**.  
+### Packer
+```bash
+sudo apt update
+sudo apt install -y gnupg software-properties-common curl
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update
+sudo apt install packer
+```
+### Ansible
 
-**Architecture cible :** Ci-dessous, l'architecture cible souhaitée.   
-  
-![Screenshot Actions](Architecture_cible.png)   
-  
----------------------------------------------------  
-## Processus de travail (résumé)
+```bash
+pipx install --include-deps ansible
+```
 
-1. Installation du cluster Kubernetes K3d (Séquence 1)
-2. Installation de Packer et Ansible
-3. Build de l'image customisée (Nginx + index.html)
-4. Import de l'image dans K3d
-5. Déploiement du service dans K3d via Ansible
-6. Ouverture des ports et vérification du fonctionnement
+## Step 2.1 Create web app oci with packer
 
----------------------------------------------------
-Séquence 4 : Documentation  
-Difficulté : Facile (~30 minutes)
----------------------------------------------------
-**Complétez et documentez ce fichier README.md** pour nous expliquer comment utiliser votre solution.  
-Faites preuve de pédagogie et soyez clair dans vos expliquations et processus de travail.  
-   
----------------------------------------------------
-Evaluation
----------------------------------------------------
-Cet atelier, **noté sur 20 points**, est évalué sur la base du barème suivant :  
-- Repository exécutable sans erreur majeure (4 points)
-- Fonctionnement conforme au scénario annoncé (4 points)
-- Degré d'automatisation du projet (utilisation de Makefile ? script ? ...) (4 points)
-- Qualité du Readme (lisibilité, erreur, ...) (4 points)
-- Processus travail (quantité de commits, cohérence globale, interventions externes, ...) (4 points) 
+```bash
+## Init packer and download deps
+packer init template.pkr.hcl
+# Build
+packer build template.pkr.hcl
+```
 
+## Step 2.2 Deploy the website (first deploy)
 
+```bash
+# Import the image
+k3d image import k3d-lionel-site:latest -c lab
+# Deploy component
+kubectl apply -f deployment.yml
+# Wait until deployment
+kubectl wait --for=condition=available deployment/lionel-site-deployment
+sleep 10
+# Forward port
+kubectl port-forward svc/lionel-service 8080:80 >/tmp/website.log 2>&1 &
+```
+
+## Step 2.3 Deploy the website after an update of the HTML page
+
+```bash
+# Build
+packer build template.pkr.hcl
+# Import the image
+k3d image import k3d-lionel-site:latest -c lab
+# Force restart
+kubectl rollout restart deployment/lionel-site-deployment
+# Wait until
+kubectl wait --for=condition=available deployment/lionel-site-deployment
+pkill -f "kubectl port-forward.*8080:80"
+sleep 10
+# Forward port
+kubectl port-forward --pod-running-timeout=60s svc/lionel-service 8080:80  >/tmp/website.log 2>&1 &
+```
